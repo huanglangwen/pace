@@ -48,6 +48,13 @@ def is_gpu_backend() -> bool:
 def is_gtc_backend() -> bool:
     return get_backend().startswith("gtc")
 
+def set_async_context(context):
+    global _ASYNC_CONTEXT
+    _ASYNC_CONTEXT = context
+
+def get_async_context():
+    return _ASYNC_CONTEXT
+
 
 # Options: numpy, gtx86, gtcuda, debug
 _BACKEND: Optional[str] = None
@@ -55,3 +62,4 @@ _BACKEND: Optional[str] = None
 # if FALSE, caches will be checked and rebuild if code changes
 _REBUILD: bool = getenv_bool("FV3_STENCIL_REBUILD_FLAG", "False")
 _VALIDATE_ARGS: bool = True
+_ASYNC_CONTEXT = None

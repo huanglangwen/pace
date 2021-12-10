@@ -26,8 +26,10 @@ from fv3core.utils.future_stencil import future_stencil
 from fv3core.utils.mpi import MPI
 from fv3core.utils.typing import Index3D, cast_to_index3d
 from pace.util.halo_data_transformer import QuantityHaloSpec
+import fv3core.utils.global_config as global_config
 
 from .gt4py_utils import make_storage_from_shape
+
 
 
 try:
@@ -224,9 +226,13 @@ class FrozenStencil:
             )
         else:
             args_as_kwargs = dict(zip(self._argument_names, args))
-            self.stencil_object.run(
-                **args_as_kwargs, **kwargs, **self._stencil_run_kwargs, exec_info=None
-            )
+            async_context = global_config.get_async_context()
+            if async_context:
+                async_context.schedule(self.stencil_object, **args_as_kwargs, **kwargs, exec_info=None, origin=self._field_origins, domain=self.domain)
+            else:
+                self.stencil_object.run(
+                    **args_as_kwargs, **kwargs, **self._stencil_run_kwargs, exec_info=None, async_launch=False, streams=0
+                )
             self._mark_cuda_fields_written({**args_as_kwargs, **kwargs})
 
     def _mark_cuda_fields_written(self, fields: Mapping[str, Storage]):

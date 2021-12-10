@@ -15,6 +15,8 @@ from fv3core.stencils.dyn_core import AcousticDynamics
 from fv3core.utils.grid import Grid
 from fv3core.utils.null_comm import NullComm
 
+from gt4py.storage import from_array
+
 
 try:
     from mpi4py import MPI
@@ -150,17 +152,26 @@ def driver(
 
         input_data = read_input_data(grid, serializer)
         experiment_name = get_experiment_name(data_directory)
+
+        if backend == "gtc:cuda":
+            from gt4py.runtime.gtgraph import AsyncContext
+            import fv3core.utils.global_config as global_config
+            async_context = AsyncContext(50, execution_mode = "async", sleep_time=0.0001, recompile = True, cache_arguments = True)
+            global_config.set_async_context(async_context)
+
+        nested = False
+        stretched_grid = False
         acoustics_object = AcousticDynamics(
             communicator,
             grid.stencil_factory,
             grid.grid_data,
             grid.damping_coefficients,
-            grid.grid_type,
-            grid.nested,
-            grid.stretched_grid,
+            spec.namelist.grid_type,
+            nested,
+            stretched_grid,
             spec.namelist.dynamical_core.acoustic_dynamics,
-            input_data["pfull"],
-            input_data["phis"],
+            from_array(input_data["pfull"], backend, (0,0,0), mask=(False, False, True)),
+            from_array(input_data["phis"], backend, (0,0,0)),
         )
 
         state = get_state_from_input(grid, input_data)
