@@ -156,7 +156,7 @@ def driver(
         if backend == "gtc:cuda":
             from gt4py.runtime.gtgraph import AsyncContext
             import fv3core.utils.global_config as global_config
-            async_context = AsyncContext(50, execution_mode = "async", sleep_time=0.0001, recompile = True, cache_arguments = True)
+            async_context = AsyncContext(50, execution_mode = "blocking", sleep_time=0.0001, recompile = True, cache_arguments = True)
             global_config.set_async_context(async_context)
 
         nested = False
@@ -180,6 +180,8 @@ def driver(
         # We're intentionally not passing the timer here to exclude
         # warmup/compilation from the internal timers
         acoustics_object(**state)
+
+        async_context.wait()
 
     # we set up a specific timer for each timestep
     # that is cleared after so we get individual statistics

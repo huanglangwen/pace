@@ -1,0 +1,39 @@
+{
+    "setup": {
+        "dataset": "c48_6ranks_standard",
+        "format_version": 2,
+        "hash": "",
+        "timestamp": "10/12/2021 22:06:21",
+        "timesteps": "5",
+        "version": "python/gtc:cuda"
+    },
+    "times": {
+        "DynCore": {
+            "hits": 4,
+            "times": [
+                [
+                    0.04593583800306078,
+                    0.04157936800038442,
+                    0.04072829999495298,
+                    0.03973732899612514
+                ]
+            ]
+        },
+        "initialization": {
+            "hits": 1,
+            "times": [
+                [
+                    15.979098235999118
+                ]
+            ]
+        },
+        "total": {
+            "hits": 1,
+            "times": [
+                [
+                    16.147149823998916
+                ]
+            ]
+        }
+    }
+}

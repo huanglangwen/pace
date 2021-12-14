@@ -1,0 +1,39 @@
+{
+    "setup": {
+        "dataset": "c128_6ranks_baroclinic",
+        "format_version": 2,
+        "hash": "",
+        "timestamp": "10/12/2021 23:10:07",
+        "timesteps": "5",
+        "version": "python/gtc:cuda"
+    },
+    "times": {
+        "DynCore": {
+            "hits": 28,
+            "times": [
+                [
+                    5.242286182976386,
+                    5.238855311006773,
+                    5.238961166003719,
+                    5.235895313016954
+                ]
+            ]
+        },
+        "initialization": {
+            "hits": 1,
+            "times": [
+                [
+                    60.50339404599799
+                ]
+            ]
+        },
+        "total": {
+            "hits": 1,
+            "times": [
+                [
+                    81.45961404400441
+                ]
+            ]
+        }
+    }
+}

@@ -13,7 +13,7 @@ build:
 	PULL=$(PULL) $(MAKE) -C docker fv3gfs_image
 
 dev:
-	docker run --rm -it \
+	docker run --rm -it --runtime=nvidia \
 		--network host \
 		-v $(CWD):/port_dev \
 		$(FV3GFS_IMAGE) bash
