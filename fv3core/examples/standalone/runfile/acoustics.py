@@ -129,13 +129,17 @@ def read_and_reset_timer(timestep_timer, times_per_step, hits_per_step):
 @click.command()
 @click.argument("data_directory", required=True, nargs=1)
 @click.argument("time_steps", required=False, default="1")
-@click.argument("backend", required=False, default="gtc:gt:cpu_ifirst")
+@click.argument("backend", required=False, default="gtc:cuda")
+@click.option("--scheduler", required=False, default="cpp")
+@click.option("--execution_mode", required=False, default="concurrent")
 @click.option("--disable_halo_exchange/--no-disable_halo_exchange", default=False)
 @click.option("--print_timings/--no-print_timings", default=True)
 def driver(
     data_directory: str,
     time_steps: str,
     backend: str,
+    scheduler: str,
+    execution_mode: str,
     disable_halo_exchange: bool,
     print_timings: bool,
 ):
@@ -153,10 +157,19 @@ def driver(
         input_data = read_input_data(grid, serializer)
         experiment_name = get_experiment_name(data_directory)
 
+        #scheduler = "cython"
+        #execution_mode = "async"
+        blocking = (execution_mode == "blocking")
+        concurrent = (execution_mode == "concurrent")
+        import fv3core.utils.global_config as global_config
         if backend == "gtc:cuda":
-            from gt4py.runtime.gtgraph import AsyncContext
-            import fv3core.utils.global_config as global_config
-            async_context = AsyncContext(50, execution_mode = "blocking", sleep_time=0.0001, recompile = True, cache_arguments = True)
+            if scheduler == "cpp": 
+                from gt4py.runtime.gtgraph import AsyncContext
+                async_context = AsyncContext(50, execution_mode = execution_mode, sleep_time=0.0001, recompile = True, cache_arguments = True)
+            elif scheduler == "cython":
+                import pyximport; pyximport.install(inplace=True)
+                from gt4py.runtime.gtgraph_fast import AsyncContextFast as AsyncContext
+                async_context = AsyncContext(50, blocking = blocking, concurrent = concurrent, sleep_time = 0.0001)
             global_config.set_async_context(async_context)
 
         nested = False
@@ -206,6 +219,8 @@ def driver(
         "backend": backend,
         "halo_update": not disable_halo_exchange,
         "hash": "",
+        #"scheduler": scheduler,
+        #"execution_mode": execution_mode,
     }
     if print_timings:
         # Collect times and output statistics in json
